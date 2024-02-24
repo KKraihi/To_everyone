@@ -5,6 +5,7 @@ var ASSETS = {
   image: {
     desk: "img/desk1.png",
     heart: "img/heart.png",
+    batsu: "img/batsu.png",
 
     ok1:"img/OK/babyWear.png",
     ok2:"img/OK/kimono.png",
@@ -44,6 +45,7 @@ var score = 0;
 var life = 3;
 var beforeLife = 3;
 var ongame = false;
+var speed = 5;
 
 
 phina.define("OK", {
@@ -58,11 +60,14 @@ phina.define("OK", {
   },
   update: function(){
     if(ongame){
-      this.y += 5;
+      this.y += speed;
       if(this.hitTestElement(desk)){
         score += 100;
         this.remove();
       }
+    }
+    if(this.y > 900){
+      this.remove();
     }
   }
 });
@@ -79,11 +84,34 @@ phina.define("NG", {
   },
   update: function(){
     if(ongame){
-      this.y += 5;
+      this.y += speed;
       if(this.hitTestElement(desk)){
         life--;
         this.remove();
       }
+    }
+    if(this.y > 900){
+      this.remove();
+    }
+  }
+});
+
+phina.define("bad", {
+  // Spriteクラスを継承
+  superClass: 'Sprite',
+  
+  // コンストラクタ
+  init: function() {
+    // 親クラス初期化
+    objRand = Math.randint(1, 14);
+    this.superInit('batsu');
+    this.setSize(100,100);
+    this.svTime = 0;
+  },
+  update: function(app){
+    this.svTime += app.deltaTime;
+    if(this.svTime >500){
+      this.remove();
     }
   }
 });
@@ -144,7 +172,7 @@ phina.define("MainScene", {
     this.shape = Shape().addChildTo(this);
     this.shape.setPosition(200, 300);
     this.shape.setSize(180, 60);
-    this.shape.backgroundColor = '#999';
+    this.shape.backgroundColor = '#e0ffce';
 
     //机
     this.desk = Sprite('desk').addChildTo(this);
@@ -156,14 +184,16 @@ phina.define("MainScene", {
     this.shape.setInteractive(true);
     //ブロックがタッチされたら動かす
     this.shape.onpointstart = function() {
-      ongame = true;
+      if(this.y < 800){
+        ongame = true;
 
-      //受付ゲームのオブジェクト有効化
-      self.desk.addChildTo(self);
-      self.scoreLabel.addChildTo(self);
-      self.life1.addChildTo(self);
-      self.life2.addChildTo(self);
-      self.life3.addChildTo(self);
+        //受付ゲームのオブジェクト有効化
+        self.desk.addChildTo(self);
+        self.scoreLabel.addChildTo(self);
+        self.life1.addChildTo(self);
+        self.life2.addChildTo(self);
+        self.life3.addChildTo(self);
+      }
     };
 
     //名前
@@ -171,9 +201,9 @@ phina.define("MainScene", {
     this.label1.setPosition(200, 300);
     this.label1.fontSize = 48;
     // label1.backgroundColor = '#999999'
-    this.label1.strokeWidth = 2;
+    this.label1.strokeWidth = 4;
     this.label1.stroke = '#000';
-    this.label1.fill = '#0f0';  // 塗りつぶし色
+    this.label1.fill = '#0ff';  // 塗りつぶし色
 
     //本文
     this.label2 = Label(unicodeUnescape(params.get('txt'))).addChildTo(this);
@@ -196,11 +226,22 @@ phina.define("MainScene", {
     this.result.stroke = '#000';
     this.result.fill = '#fff';  // 塗りつぶし色
     this.result.backgroundColor = '#ff0';
+
+    //メッセージに戻る
+    this.resetButton = phina.ui.Button({
+      text:"RESET",
+      x:this.gridX.center(),
+      y:600,
+    });
+    this.resetButton.onclick = function () {
+      window.location.reload(false);
+    }
   
   },
   
   //フレーム更新
   update: function(app) {
+    speed = 5 + (score/1000);
     var p = app.pointer;
     pointX = p.x;
     if(ongame){
@@ -209,11 +250,11 @@ phina.define("MainScene", {
       this.desk.x = pointX;
     }
     if(ongame && this.label1.y < 800){
-      this.label1.y += 5;
-      this.label2.y += 5;
-      this.label3.y += 5;
-      this.shape.y += 5;
-      this.desk.y += 5;
+      this.label1.y += speed;
+      this.label2.y += speed;
+      this.label3.y += speed;
+      this.shape.y += speed;
+      this.desk.y += speed;
       //alert('1');
     }
     if(this.label3.y > 1000){
@@ -226,13 +267,16 @@ phina.define("MainScene", {
       nowTime += app.deltaTime;
       this.scoreLabel.text = "買取:" + score + "円";
       //alert(self.desk.x);
-      if(nowTime - makeTime >= 1000){
+      if(nowTime - makeTime >= 5000/speed){
         this.addOkorNG();
         makeTime = nowTime;
       }
     }
     
     if (beforeLife != life) {
+      var batsu = bad().addChildTo(this);
+      batsu.x = pointX;
+      batsu.y = 700;
       if(life == 2){
         this.life3.remove();
       }else if(life == 1){
@@ -243,7 +287,9 @@ phina.define("MainScene", {
         ongame = false;
         this.result.text = "RESULT\n買取:" + score + "円";
         this.result.addChildTo(this);
+        this.resetButton.addChildTo(this);
       }
+      beforeLife = life;
     }
   },
 
