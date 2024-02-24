@@ -4,6 +4,7 @@ phina.globalize();
 var ASSETS = {
   image: {
     desk: "img/desk1.png",
+    heart: "img/heart.png",
 
     ok1:"img/OK/babyWear.png",
     ok2:"img/OK/kimono.png",
@@ -40,6 +41,9 @@ var makeTime = -2000;
 var nowTime = 0;
 var desk;
 var score = 0;
+var life = 3;
+var beforeLife = 3;
+var ongame = false;
 
 
 phina.define("OK", {
@@ -53,10 +57,33 @@ phina.define("OK", {
     this.setSize(75,75);
   },
   update: function(){
-    this.y += 5;
-    if(this.hitTestElement(desk)){
-      score += 100;
-      this.remove();
+    if(ongame){
+      this.y += 5;
+      if(this.hitTestElement(desk)){
+        score += 100;
+        this.remove();
+      }
+    }
+  }
+});
+
+phina.define("NG", {
+  // Spriteクラスを継承
+  superClass: 'Sprite',
+  // コンストラクタ
+  init: function() {
+    // 親クラス初期化
+    objRand = Math.randint(1, 14);
+    this.superInit('ng'+ objRand);
+    this.setSize(75,75);
+  },
+  update: function(){
+    if(ongame){
+      this.y += 5;
+      if(this.hitTestElement(desk)){
+        life--;
+        this.remove();
+      }
     }
   }
 });
@@ -91,13 +118,27 @@ phina.define("MainScene", {
     let params = url.searchParams;
 
     //スコア
-    this.scoreLabel = Label("score:" + score).addChildTo(this);
+    this.scoreLabel = Label("買取:" + score + "円");
     this.scoreLabel.setPosition(500, 50);
     this.scoreLabel.fontSize = 48;
     this.scoreLabel.strokeWidth = 2;
     this.scoreLabel.stroke = '#fff';
     this.scoreLabel.fill = '#000';  // 塗りつぶし色
-    this.scoreLabel.remove();
+
+
+
+    //ライフ
+    this.life1 = Sprite('heart');
+    this.life1.setPosition(50,50);
+    this.life1.setSize(50,50);
+
+    this.life2 = Sprite('heart');
+    this.life2.setPosition(150,50);
+    this.life2.setSize(50,50);
+
+    this.life3 = Sprite('heart');
+    this.life3.setPosition(250,50);
+    this.life3.setSize(50,50);
 
     //名前背景の四角
     this.shape = Shape().addChildTo(this);
@@ -111,16 +152,18 @@ phina.define("MainScene", {
     this.desk.setSize(200,60);
     this.desk.remove();
 
-    //フラグ初期化
-    this.label1_move = false;
     //ブロックがタッチできるように
     this.shape.setInteractive(true);
     //ブロックがタッチされたら動かす
     this.shape.onpointstart = function() {
-      self.label1_move = true;
+      ongame = true;
+
+      //受付ゲームのオブジェクト有効化
       self.desk.addChildTo(self);
       self.scoreLabel.addChildTo(self);
-      // alert("タッチ");
+      self.life1.addChildTo(self);
+      self.life2.addChildTo(self);
+      self.life3.addChildTo(self);
     };
 
     //名前
@@ -144,6 +187,15 @@ phina.define("MainScene", {
     this.label3.setPosition(500, 700);
     this.label3.fontSize = 40;
     this.label3.fill = '#000';  // 塗りつぶし色
+
+    //最終スコア
+    this.result = Label("RESULT\n買取:" + score + "円");
+    this.result.setPosition(this.gridX.center(), 400);
+    this.result.fontSize = 90;
+    this.result.strokeWidth = 6;
+    this.result.stroke = '#000';
+    this.result.fill = '#fff';  // 塗りつぶし色
+    this.result.backgroundColor = '#ff0';
   
   },
   
@@ -151,12 +203,12 @@ phina.define("MainScene", {
   update: function(app) {
     var p = app.pointer;
     pointX = p.x;
-    if(this.label1_move){
+    if(ongame){
       this.shape.x = pointX;
       this.label1.x = pointX;
       this.desk.x = pointX;
     }
-    if(this.label1_move && this.label1.y < 800){
+    if(ongame && this.label1.y < 800){
       this.label1.y += 5;
       this.label2.y += 5;
       this.label3.y += 5;
@@ -169,24 +221,45 @@ phina.define("MainScene", {
       this.label2.remove();
     }
 
-    if(this.label1.y >= 800){
+    if(this.label1.y >= 800 && ongame){
       desk = this.desk;
       nowTime += app.deltaTime;
-      this.scoreLabel.text = "score:" + score;
+      this.scoreLabel.text = "買取:" + score + "円";
       //alert(self.desk.x);
       if(nowTime - makeTime >= 1000){
-        this.addOk();
+        this.addOkorNG();
         makeTime = nowTime;
       }
     }
     
+    if (beforeLife != life) {
+      if(life == 2){
+        this.life3.remove();
+      }else if(life == 1){
+        this.life2.remove();
+      }else{
+        this.life1.remove();
+        this.scoreLabel.remove();
+        ongame = false;
+        this.result.text = "RESULT\n買取:" + score + "円";
+        this.result.addChildTo(this);
+      }
+    }
   },
 
-  addOk: function(){
+  addOkorNG: function(){
     var makeX = Math.randint(0,this.gridX.width);
-    var ok = OK().addChildTo(this);
-    ok.x = makeX;
+    var randBit = Math.random() >= 0.5;
+    if(randBit){
+      var ok = OK().addChildTo(this);
+      ok.x = makeX;
+    }else{
+      var ng = NG().addChildTo(this);
+      ng.x = makeX;
+    }
   },
+
+
 });
 
 /*
