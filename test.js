@@ -6,6 +6,7 @@ var ASSETS = {
     desk: "img/desk1.png",
     heart: "img/heart.png",
     batsu: "img/batsu.png",
+    bg: "img/back.jpg",
 
     ok1:"img/OK/babyWear.png",
     ok2:"img/OK/kimono.png",
@@ -141,9 +142,13 @@ phina.define("MainScene", {
     var self = this;
 
     // 背景色
-    this.backgroundColor = '#e0ffce';
+    //this.backgroundColor = '#e0ffce';
     let url = new URL(window.location.href);
     let params = url.searchParams;
+
+    this.bg = Sprite("bg").addChildTo(this);
+    this.bg.origin.set(0, 0); // 左上基準に変更
+    this.bg.setSize(640,960);
 
     //スコア
     this.scoreLabel = Label("買取:" + score + "円");
@@ -172,13 +177,12 @@ phina.define("MainScene", {
     this.shape = Shape().addChildTo(this);
     this.shape.setPosition(200, 300);
     this.shape.setSize(180, 60);
-    this.shape.backgroundColor = '#e0ffce';
+    this.shape.alpha = 0;
 
     //机
-    this.desk = Sprite('desk').addChildTo(this);
+    this.desk = Sprite('desk');
     this.desk.setPosition(200,240);
     this.desk.setSize(200,60);
-    this.desk.remove();
 
     //ブロックがタッチできるように
     this.shape.setInteractive(true);
@@ -216,6 +220,7 @@ phina.define("MainScene", {
     this.label3 = Label('前田悠翔').addChildTo(this);
     this.label3.setPosition(500, 700);
     this.label3.fontSize = 40;
+    this.label3.backgroundColor = '#ff0'
     this.label3.fill = '#000';  // 塗りつぶし色
 
     //最終スコア
