@@ -1,5 +1,11 @@
 // グローバルに展開
 phina.globalize();
+
+var ASSETS = {
+  image: {
+    desk: "img/desk1.png",
+  },
+};
 /*
  * メインシーン
  */
@@ -43,9 +49,11 @@ phina.define("MainScene", {
     //ブロックがタッチされたら動かす
     this.shape.onpointstart = function() {
       self.label1_move = true;
-      alert("タッチ");
+      this.desk = Sprite('desk').addChildTo(this);
+      this.desk.setPosition(0,-60);
+      this.desk.setSize(200,60);
+      // alert("タッチ");
     };
-
     //名前
     this.label1 = Label(unicodeUnescape(params.get('name'))).addChildTo(this);
     this.label1.setPosition(200, 300);
@@ -73,13 +81,20 @@ phina.define("MainScene", {
   //フレーム更新
   update: function(app) {
     var p = app.pointer;
-    
+
+    pointX = p.x;
     if(this.label1_move){
-      this.label2.y -= 5;
-      this.label3.y -= 5;
+      this.shape.x = pointX;
+      this.label1.x = pointX;
+    }
+    if(this.label1_move && this.label1.y < 800){
+      this.label1.y += 5;
+      this.label2.y += 5;
+      this.label3.y += 5;
+      this.shape.y += 5;
       //alert('1');
     }
-    if(this.label3.y < 100){
+    if(this.label3.y > 1000){
       this.label3.remove();
       this.label2.remove();
     }
@@ -94,6 +109,7 @@ phina.main(function() {
 
   var app = GameApp({
     startLabel: 'main', // MainScene から開始
+    assets:ASSETS,
   });
 
   //app.enableStats();
