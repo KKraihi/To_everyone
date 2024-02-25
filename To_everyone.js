@@ -175,13 +175,13 @@ phina.define("MainScene", {
 
     //名前背景の四角
     this.shape = Shape().addChildTo(this);
-    this.shape.setPosition(200, 300);
+    this.shape.setPosition(200, 200);
     this.shape.setSize(180, 60);
     this.shape.alpha = 0;
 
     //机
     this.desk = Sprite('desk');
-    this.desk.setPosition(200,240);
+    this.desk.setPosition(200,140);
     this.desk.setSize(200,60);
 
     //ブロックがタッチできるように
@@ -202,7 +202,7 @@ phina.define("MainScene", {
 
     //名前
     this.label1 = Label(unicodeUnescape(params.get('name'))).addChildTo(this);
-    this.label1.setPosition(200, 300);
+    this.label1.setPosition(200, 200);
     this.label1.fontSize = 48;
     // label1.backgroundColor = '#999999'
     this.label1.strokeWidth = 4;
@@ -218,7 +218,7 @@ phina.define("MainScene", {
 
     //自分の名前
     this.label3 = Label('前田悠翔').addChildTo(this);
-    this.label3.setPosition(500, 700);
+    this.label3.setPosition(500, 800);
     this.label3.fontSize = 40;
     this.label3.backgroundColor = '#ff0'
     this.label3.fill = '#000';  // 塗りつぶし色
