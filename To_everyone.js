@@ -8,6 +8,16 @@ var ASSETS = {
     batsu: "img/batsu.png",
     bg: "img/back.jpg",
 
+    sakura1:"img/sakura/sakura1.png",
+    sakura2:"img/sakura/sakura2.png",
+    sakura3:"img/sakura/sakura3.png",
+    sakura4:"img/sakura/sakura4.png",
+    sakura5:"img/sakura/sakura5.png",
+    sakura6:"img/sakura/sakura6.png",
+    sakura7:"img/sakura/sakura7.png",
+    sakura8:"img/sakura/sakura8.png",
+    sakura9:"img/sakura/sakura9.png",
+
     ok1:"img/OK/babyWear.png",
     ok2:"img/OK/kimono.png",
     ok3:"img/OK/touki.png",
@@ -47,7 +57,34 @@ var life = 3;
 var beforeLife = 3;
 var ongame = false;
 var speed = 5;
+phina.define('Sakura', {
+  superClass: 'Sprite',
 
+  init: function() {
+    objRand = Math.randint(1, 9);
+    this.superInit('sakura'+objRand);
+    this.setSize(25,25);
+    this.Ro = Math.randint(-2,2);
+    this.vX = Math.randint(-1,1);
+    this.vY = Math.randint(2,4);
+  },
+
+  update: function() {
+    // 下に移動
+    if(Math.randint(0,200)==20){
+      this.Ro = Math.randint(-2,2);
+      this.vX = Math.randint(-1,1);
+    }
+    this.y += this.vY;
+    this.x += this.vX;
+    this.rotation += this.Ro;
+
+    // 地面に着いたら
+    if (this.y > 1000) {
+      this.remove();
+    }
+  },
+});
 
 phina.define("OK", {
   // Spriteクラスを継承
@@ -309,7 +346,19 @@ phina.define("MainScene", {
       ng.x = makeX;
     }
   },
+  onpointmove: function(e) {
+    if(!ongame){
+      var p = e.pointer;
+      this.addSakura(p.x, p.y);
+    }
+  },
 
+  // サークルを追加
+  addSakura: function(x, y) {
+    // サークルを生成
+    var sakura = Sakura().addChildTo(this);
+    sakura.setPosition(x,y);
+  },
 
 });
 
