@@ -257,7 +257,7 @@ phina.define("MainScene", {
     this.label3 = Label('前田悠翔').addChildTo(this);
     this.label3.setPosition(500, 800);
     this.label3.fontSize = 40;
-    this.label3.backgroundColor = '#ff0'
+    //this.label3.backgroundColor = '#ff0'
     this.label3.fill = '#000';  // 塗りつぶし色
 
     //最終スコア
